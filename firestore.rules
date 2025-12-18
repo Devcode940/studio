@@ -1,0 +1,139 @@
+/**
+ * Core Philosophy: This ruleset establishes a secure, read-only data model for a public information application.
+ * All data collections are considered public and can be read by any user, authenticated or not. To ensure
+ * data integrity and prevent unauthorized modifications, all client-side write operations (create, update, delete)
+ * are explicitly forbidden. Data is expected to be populated and managed by a trusted backend service using
+ * the Admin SDK, which bypasses these security rules.
+ *
+ * Data Structure: The data is organized into several top-level collections representing public datasets:
+ * - /representatives: Profiles of elected officials.
+ * - /leaderboard_entries: Rankings of representatives.
+ * - /county_gdp: Economic data for counties.
+ * - /census_data: Population data.
+ *
+ * The /representatives collection contains nested subcollections for more detailed information, such as
+ * performance_metrics, integrity_report, and highlights, which inherit the same public-read, no-write security posture.
+ *
+ * Key Security Decisions:
+ * - Public Read Access: All collections are world-readable to support the app's function as a public data portal.
+ * - No Client Writes: All write access from clients is disabled (`if false;`). This provides the highest level of
+ *   security for a curated dataset, preventing vandalism or accidental data corruption by end-users.
+ * - No User-Specific Data: There are no user-specific collections or ownership rules, simplifying the security model
+ *   significantly. Authorization is uniform across the entire database.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --------------------------------
+    // Helper Functions
+    // --------------------------------
+
+    /**
+     * Explicitly disables all client-side write operations.
+     * This is the cornerstone of the security model, ensuring that the public
+     * dataset can only be modified by a trusted backend process.
+     */
+    function isClientWriteDisabled() {
+      return false;
+    }
+
+    /**
+     * @description Rules for the 'representatives' collection, which stores public profiles of officials.
+     * @path /representatives/{representativeId}
+     * @allow (get) Any user, signed in or not, can read a representative's profile.
+     * @deny (create) A user attempts to add a new representative document.
+     * @principle Protects the integrity of a public, curated dataset by making it read-only for clients.
+     */
+    match /representatives/{representativeId} {
+      allow get, list: if true;
+      allow create: if isClientWriteDisabled();
+      allow update: if isClientWriteDisabled();
+      allow delete: if isClientWriteDisabled();
+
+      /**
+       * @description Rules for performance metrics associated with a representative.
+       * @path /representatives/{representativeId}/performance_metrics/{metricId}
+       * @allow (list) Any user can list all performance metrics for a given representative.
+       * @deny (update) A user attempts to change the value of an existing performance metric.
+       * @principle Ensures that detailed subcollection data remains read-only for clients.
+       */
+      match /performance_metrics/{metricId} {
+        allow get, list: if true;
+        allow create: if isClientWriteDisabled();
+        allow update: if isClientWriteDisabled();
+        allow delete: if isClientWriteDisabled();
+      }
+
+      /**
+       * @description Rules for integrity reports associated with a representative.
+       * @path /representatives/{representativeId}/integrity_report/{reportId}
+       * @allow (get) Any user can read the integrity report for a given representative.
+       * @deny (create) A user attempts to add a new integrity report.
+       * @principle Ensures that detailed subcollection data remains read-only for clients.
+       */
+      match /integrity_report/{reportId} {
+        allow get, list: if true;
+        allow create: if isClientWriteDisabled();
+        allow update: if isClientWriteDisabled();
+        allow delete: if isClientWriteDisabled();
+      }
+
+      /**
+       * @description Rules for highlights associated with a representative.
+       * @path /representatives/{representativeId}/highlights/{highlightId}
+       * @allow (list) Any user can list all highlights for a given representative.
+       * @deny (delete) A user attempts to delete a highlight.
+       * @principle Ensures that detailed subcollection data remains read-only for clients.
+       */
+      match /highlights/{highlightId} {
+        allow get, list: if true;
+        allow create: if isClientWriteDisabled();
+        allow update: if isClientWriteDisabled();
+        allow delete: if isClientWriteDisabled();
+      }
+    }
+
+    /**
+     * @description Rules for the 'leaderboard_entries' collection, which stores public rankings.
+     * @path /leaderboard_entries/{leaderboardEntryId}
+     * @allow (list) Any user, signed in or not, can query the entire leaderboard.
+     * @deny (create) A user attempts to add themselves or another representative to the leaderboard.
+     * @principle Protects the integrity of a public, curated dataset by making it read-only for clients.
+     */
+    match /leaderboard_entries/{leaderboardEntryId} {
+      allow get, list: if true;
+      allow create: if isClientWriteDisabled();
+      allow update: if isClientWriteDisabled();
+      allow delete: if isClientWriteDisabled();
+    }
+
+    /**
+     * @description Rules for the 'county_gdp' collection, containing public economic data.
+     * @path /county_gdp/{countyGdpId}
+     * @allow (get) Any user can read the GDP data for a specific county.
+     * @deny (update) A user attempts to modify the GDP value for a county.
+     * @principle Protects the integrity of a public, curated dataset by making it read-only for clients.
+     */
+    match /county_gdp/{countyGdpId} {
+      allow get, list: if true;
+      allow create: if isClientWriteDisabled();
+      allow update: if isClientWriteDisabled();
+      allow delete: if isClientWriteDisabled();
+    }
+
+    /**
+     * @description Rules for the 'census_data' collection, containing public demographic information.
+     * @path /census_data/{censusDataId}
+     * @allow (list) Any user can query and list all available census data.
+     * @deny (create) A user attempts to add new or fabricated census data.
+     * @principle Protects the integrity of a public, curated dataset by making it read-only for clients.
+     */
+    match /census_data/{censusDataId} {
+      allow get, list: if true;
+      allow create: if isClientWriteDisabled();
+      allow update: if isClientWriteDisabled();
+      allow delete: if isClientWriteDisabled();
+    }
+  }
+}

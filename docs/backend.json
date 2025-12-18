@@ -1,0 +1,402 @@
+{
+  "entities": {
+    "Representative": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Representative",
+      "type": "object",
+      "description": "Represents an elected official, from President to MCA (Member of County Assembly).",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Representative entity."
+        },
+        "office": {
+          "type": "string",
+          "description": "The office held by the representative (e.g., President, Senator, MCA)."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the representative."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the representative."
+        },
+        "constituency": {
+          "type": "string",
+          "description": "The constituency represented."
+        },
+        "county": {
+          "type": "string",
+          "description": "The county the representative represents."
+        },
+        "party": {
+          "type": "string",
+          "description": "The political party affiliation."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL of the representative's photo.",
+          "format": "uri"
+        },
+        "contactInformation": {
+          "type": "string",
+          "description": "Contact details (e.g., phone, email, office address)."
+        }
+      },
+      "required": [
+        "id",
+        "office",
+        "firstName",
+        "lastName",
+        "constituency",
+        "county",
+        "party"
+      ]
+    },
+    "PerformanceMetric": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PerformanceMetric",
+      "type": "object",
+      "description": "Key performance indicators for each representative.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PerformanceMetric entity."
+        },
+        "representativeId": {
+          "type": "string",
+          "description": "Reference to Representative. (Relationship: Representative 1:N PerformanceMetric)"
+        },
+        "metricName": {
+          "type": "string",
+          "description": "Name of the performance metric (e.g., votes garnered, participation record)."
+        },
+        "metricValue": {
+          "type": "number",
+          "description": "Value of the performance metric."
+        },
+        "weight": {
+          "type": "number",
+          "description": "Weight assigned to the metric for overall ranking."
+        }
+      },
+      "required": [
+        "id",
+        "representativeId",
+        "metricName",
+        "metricValue",
+        "weight"
+      ]
+    },
+    "IntegrityReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "IntegrityReport",
+      "type": "object",
+      "description": "AI-generated summary of verified saga/scandal information for a representative.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the IntegrityReport entity."
+        },
+        "representativeId": {
+          "type": "string",
+          "description": "Reference to Representative. (Relationship: Representative 1:1 IntegrityReport)"
+        },
+        "reportSummary": {
+          "type": "string",
+          "description": "Summarized integrity report."
+        },
+        "reportDate": {
+          "type": "string",
+          "description": "Date the report was generated.",
+          "format": "date-time"
+        },
+        "sourceUrls": {
+          "type": "array",
+          "description": "URLs of reputable news sources used to generate the report.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "representativeId",
+        "reportSummary",
+        "reportDate"
+      ]
+    },
+    "LeaderboardEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Entry in the leaderboard, ranking representatives based on performance and integrity.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LeaderboardEntry entity."
+        },
+        "representativeId": {
+          "type": "string",
+          "description": "Reference to Representative. (Relationship: Representative 1:N LeaderboardEntry)"
+        },
+        "rank": {
+          "type": "number",
+          "description": "The representative's rank on the leaderboard."
+        },
+        "score": {
+          "type": "number",
+          "description": "Overall score based on performance metrics and integrity."
+        },
+        "leaderboardName": {
+          "type": "string",
+          "description": "Name of the Leaderboard (e.g., 'Overall', 'Performance', 'Integrity')."
+        }
+      },
+      "required": [
+        "id",
+        "representativeId",
+        "rank",
+        "score",
+        "leaderboardName"
+      ]
+    },
+    "CountyGdp": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CountyGdp",
+      "type": "object",
+      "description": "Gross Domestic Product data for each county.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CountyGdp entity."
+        },
+        "countyName": {
+          "type": "string",
+          "description": "Name of the county."
+        },
+        "gdp": {
+          "type": "number",
+          "description": "Gross Domestic Product of the county."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year the GDP data is for."
+        }
+      },
+      "required": [
+        "id",
+        "countyName",
+        "gdp",
+        "year"
+      ]
+    },
+    "CensusData": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CensusData",
+      "type": "object",
+      "description": "Kenyan census data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CensusData entity."
+        },
+        "countyName": {
+          "type": "string",
+          "description": "Name of the county."
+        },
+        "populationCategory": {
+          "type": "string",
+          "description": "Category of the population data (e.g., Total, Male, Female, Youth)."
+        },
+        "populationCount": {
+          "type": "number",
+          "description": "Population count for the specified category."
+        },
+        "year": {
+          "type": "number",
+          "description": "The year the census data is for."
+        }
+      },
+      "required": [
+        "id",
+        "countyName",
+        "populationCategory",
+        "populationCount",
+        "year"
+      ]
+    },
+    "Highlight": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Highlight",
+      "type": "object",
+      "description": "Highlights key achievements, significant votes, or important statements made by representatives.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Highlight entity."
+        },
+        "representativeId": {
+          "type": "string",
+          "description": "Reference to Representative. (Relationship: Representative 1:N Highlight)"
+        },
+        "highlightText": {
+          "type": "string",
+          "description": "Text of the highlight."
+        },
+        "highlightDate": {
+          "type": "string",
+          "description": "Date of the highlight.",
+          "format": "date-time"
+        },
+        "sourceUrl": {
+          "type": "string",
+          "description": "URL of the source of the highlight.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "representativeId",
+        "highlightText",
+        "highlightDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/representatives/{representativeId}",
+        "definition": {
+          "entityName": "Representative",
+          "schema": {
+            "$ref": "#/backend/entities/Representative"
+          },
+          "description": "Stores profiles of elected representatives.  Representative data is publicly accessible.",
+          "params": [
+            {
+              "name": "representativeId",
+              "description": "Unique identifier for each representative."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/representatives/{representativeId}/performance_metrics/{metricId}",
+        "definition": {
+          "entityName": "PerformanceMetric",
+          "schema": {
+            "$ref": "#/backend/entities/PerformanceMetric"
+          },
+          "description": "Stores performance metrics for each representative. Representative and metric data is publicly accessible.",
+          "params": [
+            {
+              "name": "representativeId",
+              "description": "Unique identifier for the representative."
+            },
+            {
+              "name": "metricId",
+              "description": "Unique identifier for the performance metric."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/representatives/{representativeId}/integrity_report/{reportId}",
+        "definition": {
+          "entityName": "IntegrityReport",
+          "schema": {
+            "$ref": "#/backend/entities/IntegrityReport"
+          },
+          "description": "Stores integrity reports for each representative.  Representative and integrity report data is publicly accessible.",
+          "params": [
+            {
+              "name": "representativeId",
+              "description": "Unique identifier for the representative."
+            },
+            {
+              "name": "reportId",
+              "description": "Unique identifier for the integrity report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/leaderboard_entries/{leaderboardEntryId}",
+        "definition": {
+          "entityName": "LeaderboardEntry",
+          "schema": {
+            "$ref": "#/backend/entities/LeaderboardEntry"
+          },
+          "description": "Stores entries for the leaderboard.  Leaderboard data is publicly accessible.",
+          "params": [
+            {
+              "name": "leaderboardEntryId",
+              "description": "Unique identifier for the leaderboard entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/county_gdp/{countyGdpId}",
+        "definition": {
+          "entityName": "CountyGdp",
+          "schema": {
+            "$ref": "#/backend/entities/CountyGdp"
+          },
+          "description": "Stores GDP data for each county.  County GDP data is publicly accessible.",
+          "params": [
+            {
+              "name": "countyGdpId",
+              "description": "Unique identifier for the county GDP data."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/census_data/{censusDataId}",
+        "definition": {
+          "entityName": "CensusData",
+          "schema": {
+            "$ref": "#/backend/entities/CensusData"
+          },
+          "description": "Stores census data.  Census data is publicly accessible.",
+          "params": [
+            {
+              "name": "censusDataId",
+              "description": "Unique identifier for the census data."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/representatives/{representativeId}/highlights/{highlightId}",
+        "definition": {
+          "entityName": "Highlight",
+          "schema": {
+            "$ref": "#/backend/entities/Highlight"
+          },
+          "description": "Stores highlights for each representative.  Representative highlight data is publicly accessible.",
+          "params": [
+            {
+              "name": "representativeId",
+              "description": "Unique identifier for the representative."
+            },
+            {
+              "name": "highlightId",
+              "description": "Unique identifier for the highlight."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the KenyaWatch application, focusing on representative data, performance metrics, integrity reports, and various data visualizations (leaderboard, county GDP, census). The design prioritizes security, scalability, and ease of debugging. Authorization Independence is achieved by avoiding hierarchical `get()` calls and denormalizing authorization data where necessary.\n\nThe core entities are:\n\n*   `Representatives`: Stores data about elected officials.\n*   `PerformanceMetrics`: Stores key performance indicators, related to Representatives.\n*   `IntegrityReports`: AI-generated summaries of integrity-related information, related to Representatives.\n*   `LeaderboardEntries`: Ranking data, related to Representatives.\n*   `CountyGdp`: GDP data for each county.\n*   `CensusData`: Census data for each county and population category.\n*   `Highlights`: Key achievements/statements, related to Representatives.\n\n**Authorization Independence (Denormalization):**\n\nWhile most data is publicly accessible, if there were administrative functions to update or modify representative data, consider a separate `/admin_roles/{uid}` collection. Membership of this collection would grant update/delete permissions to the `/representatives` collection.\n\n**Structural Segregation:**\n\nAll collections are designed to have a homogeneous security posture. Data with different access requirements (e.g., potentially sensitive admin data) would be stored in separate collections with stricter rules.\n\n**QAPs (Rules are not Filters):**\n\nThe structure supports secure `list` operations. The global collections (`/representatives`, `/county_gdp`, `/census_data`, `/leaderboard_entries`) can be queried without needing to filter based on user roles. If role-based filtering was needed, a denormalized `roles` map would be needed in each of these collections.\n\n**Invariants:**\nThe structure supports integrity of ownership and timestamps.  For example, although not explicitly needed in this implementation due to the public nature of the collections, adding `createdAt` and `updatedAt` timestamps to each document is a good practice to ensure data consistency."
+  }
+}
