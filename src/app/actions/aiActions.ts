@@ -2,6 +2,8 @@
 "use server";
 
 import { summarizeIntegrityReport, type IntegrityReportInput, type IntegrityReportOutput } from "@/ai/flows/summarize-integrity-report";
+import { factCheckRepresentative, type FactCheckInput, type FactCheckOutput } from "@/ai/flows/fact-check-representative";
+
 
 interface ActionResult<T> {
   success: boolean;
@@ -28,6 +30,21 @@ export async function summarizeIntegrityReportAction(
     return { success: true, data: output };
   } catch (error) {
     console.error("Error in summarizeIntegrityReportAction:", error);
+    return { success: false, error: (error as Error).message || "An unexpected error occurred while generating the report." };
+  }
+}
+
+export async function factCheckRepresentativeAction(
+  input: FactCheckInput
+): Promise<ActionResult<FactCheckOutput>> {
+  try {
+    if (!input.name) {
+      return { success: false, error: "Representative name is required." };
+    }
+    const output = await factCheckRepresentative(input);
+    return { success: true, data: output };
+  } catch (error) {
+    console.error("Error in factCheckRepresentativeAction:", error);
     return { success: false, error: (error as Error).message || "An unexpected error occurred while generating the report." };
   }
 }

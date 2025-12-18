@@ -2,23 +2,12 @@
 "use client";
 
 import { useState } from 'react';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { summarizeIntegrityReportAction } from '@/app/actions/aiActions'; // Will create this action
+import { factCheckRepresentativeAction } from '@/app/actions/aiActions';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, FileText, ShieldAlert } from "lucide-react";
+import { Loader2, FileText, ShieldAlert, Wand2 } from "lucide-react";
 import type { Representative } from '@/types';
-
-const formSchema = z.object({
-  newsSummary: z.string().min(50, {
-    message: "News summary must be at least 50 characters.",
-  }).max(5000, { message: "News summary must not exceed 5000 characters."}),
-});
 
 interface IntegrityReportGeneratorProps {
   representative: Representative;
@@ -29,21 +18,14 @@ export function IntegrityReportGenerator({ representative }: IntegrityReportGene
   const [report, setReport] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      newsSummary: representative.newsSummaryForAI || "",
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function handleGenerate() {
     setIsLoading(true);
     setReport(null);
     try {
-      const result = await summarizeIntegrityReportAction({
+      const result = await factCheckRepresentativeAction({
         name: representative.name,
-        newsSummary: values.newsSummary,
       });
+
       if (result.success && result.data) {
         setReport(result.data.integrityReport);
         toast({
@@ -72,60 +54,44 @@ export function IntegrityReportGenerator({ representative }: IntegrityReportGene
           <ShieldAlert className="h-8 w-8 text-primary" />
           <div>
             <CardTitle className="font-headline text-xl">AI-Powered Integrity Report</CardTitle>
-            <CardDescription>Summarize verified news for {representative.name}.</CardDescription>
+            <CardDescription>
+              Generate a real-time summary of news articles for {representative.name}.
+            </CardDescription>
           </div>
         </div>
       </CardHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="newsSummary"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>News Summary Input</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Paste a summary of reputable news articles about the representative here (max 5000 characters)..."
-                      className="min-h-[150px] resize-y"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Provide a concise summary of verified news from reputable sources. This will be used by AI to generate the integrity report.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-          <CardFooter className="flex justify-end">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                "Generate Report"
-              )}
-            </Button>
-          </CardFooter>
-        </form>
-      </Form>
-      
-      {report && (
-        <div className="p-6 border-t">
-          <h3 className="font-headline text-lg font-semibold mb-2 flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-primary" />
-            Generated Integrity Summary
-          </h3>
-          <div className="prose prose-sm max-w-none rounded-md border bg-muted/50 p-4">
-            <p>{report}</p>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          Click the button below to use AI to search for recent, reputable news articles concerning this representative and generate a summary of potential integrity issues. This process may take a moment.
+        </p>
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-4">
+        <Button onClick={handleGenerate} disabled={isLoading} className="w-full sm:w-auto">
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Wand2 className="mr-2 h-4 w-4" />
+              Generate Real-time Report
+            </>
+          )}
+        </Button>
+        
+        {report && (
+          <div className="w-full pt-4 border-t">
+            <h3 className="font-headline text-lg font-semibold mb-2 flex items-center">
+              <FileText className="mr-2 h-5 w-5 text-primary" />
+              Generated Integrity Summary
+            </h3>
+            <div className="prose prose-sm max-w-none rounded-md border bg-muted/50 p-4">
+              <p>{report}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </CardFooter>
     </Card>
   );
 }
