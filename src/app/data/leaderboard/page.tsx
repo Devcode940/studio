@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Loader2 } from 'lucide-react';
-import { useCollection } from '@/firebase';
+import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
@@ -70,7 +70,7 @@ const columns: ColumnDefinition<RankedRepresentative>[] = [
 export default function LeaderboardPage() {
   const firestore = useFirestore();
   
-  const leaderboardQuery = useMemo(() => {
+  const leaderboardQuery = useMemoFirebase(() => {
       if (!firestore) return null;
       return query(collection(firestore, 'leaderboard_entries'), orderBy('rank', 'asc'));
   }, [firestore]);
