@@ -5,10 +5,8 @@ import type { CensusData } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DataTable, type ColumnDefinition } from '@/components/shared/DataTable';
 import { Users, Loader2 } from 'lucide-react';
-import { useCollection } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useMemo } from 'react';
 
 const columns: ColumnDefinition<CensusData>[] = [
   {
@@ -62,7 +60,7 @@ const columns: ColumnDefinition<CensusData>[] = [
 export default function CensusDataPage() {
     const firestore = useFirestore();
 
-    const censusQuery = useMemo(() => {
+    const censusQuery = useMemoFirebase(() => {
         if (!firestore) return null;
         return query(collection(firestore, 'census_data'), orderBy('totalPopulation', 'desc'));
     }, [firestore]);

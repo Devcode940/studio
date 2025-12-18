@@ -5,10 +5,8 @@ import type { CountyGDP } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DataTable, type ColumnDefinition } from '@/components/shared/DataTable';
 import { TrendingUp, Loader2 } from 'lucide-react';
-import { useCollection } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
-import { useMemo } from 'react';
 
 const columns: ColumnDefinition<CountyGDP>[] = [
   {
@@ -39,7 +37,7 @@ const columns: ColumnDefinition<CountyGDP>[] = [
 export default function CountyGDPPage() {
   const firestore = useFirestore();
 
-  const gdpQuery = useMemo(() => {
+  const gdpQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'county_gdp'), orderBy('gdpMillionsKsh', 'desc'));
   }, [firestore]);

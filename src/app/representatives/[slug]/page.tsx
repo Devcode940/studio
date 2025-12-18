@@ -13,9 +13,8 @@ import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Inf
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { doc, collection, query, where, getDocs, limit } from 'firebase/firestore';
-import { useEffect, useMemo } from 'react';
 
 interface RepresentativeProfilePageProps {
   params: { slug: string };
@@ -24,7 +23,7 @@ interface RepresentativeProfilePageProps {
 export default function RepresentativeProfilePage({ params }: RepresentativeProfilePageProps) {
   const firestore = useFirestore();
 
-  const representativeQuery = useMemo(() => {
+  const representativeQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'representatives'), where('slug', '==', params.slug), limit(1));
   }, [firestore, params.slug]);
@@ -32,13 +31,13 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
   const { data: representativeData, isLoading: isLoadingRep } = useCollection<Representative>(representativeQuery);
   const representative = representativeData?.[0];
 
-  const highlightsQuery = useMemo(() => {
+  const highlightsQuery = useMemoFirebase(() => {
     if (!firestore || !representative?.id) return null;
     return collection(firestore, 'representatives', representative.id, 'highlights');
   }, [firestore, representative?.id]);
   const { data: highlights, isLoading: isLoadingHighlights } = useCollection(highlightsQuery);
 
-  const performanceMetricsQuery = useMemo(() => {
+  const performanceMetricsQuery = useMemoFirebase(() => {
     if (!firestore || !representative?.id) return null;
     return collection(firestore, 'representatives', representative.id, 'performance_metrics');
   }, [firestore, representative?.id]);
