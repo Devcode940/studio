@@ -3,21 +3,35 @@ import type { Representative, PerformanceMetric, Highlight, CountyGDP, CensusDat
 export const mockRepresentatives: Representative[] = [
   {
     id: '1',
-    slug: 'john-doe-president',
-    name: 'John Doe',
+    slug: 'william-ruto-president',
+    name: 'William Ruto',
     photoUrl: 'https://placehold.co/300x300.png',
     position: 'President',
     constituencyOrWard: 'National',
     county: 'National',
-    contactInfo: { email: 'president@example.com', twitter: '@PresJohnDoe' },
-    party: 'Unity Party',
-    votesGarnered: 7000000,
+    contactInfo: { email: 'president@example.com', twitter: '@WilliamsRuto' },
+    party: 'UDA',
+    votesGarnered: 7176141,
     participationRecordSummary: 'Attended 95% of cabinet meetings. Championed 5 key legislations.',
-    newsSummaryForAI: 'President John Doe has been in office for two years. Recent news highlights his infrastructure projects and foreign policy initiatives. Some reports mention controversy over a recent tender award process, but investigations are ongoing.'
+    newsSummaryForAI: 'President William Ruto has been in office since 2022. Recent news highlights his economic policies and foreign trips aimed at securing investment. Some reports mention controversy over the Finance Bill 2023, but the government defends it as necessary for revenue generation.'
   },
   {
     id: '2',
-    slug: 'jane-smith-governor',
+    slug: 'rigathi-gachagua-dp',
+    name: 'Rigathi Gachagua',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Deputy President',
+    constituencyOrWard: 'National',
+    county: 'National',
+    contactInfo: { email: 'dp@example.com', twitter: '@rigathi' },
+    party: 'UDA',
+    votesGarnered: 7176141,
+    participationRecordSummary: 'Chairs key economic committees and coordinates government projects.',
+    newsSummaryForAI: 'Deputy President Rigathi Gachagua is known for his vocal stance on national issues. He has been actively involved in agricultural reforms, particularly in the coffee and tea sectors. Some of his public statements have drawn both praise and criticism.'
+  },
+  {
+    id: '3',
+    slug: 'jane-smith-governor-nairobi',
     name: 'Jane Smith',
     photoUrl: 'https://placehold.co/300x300.png',
     position: 'Governor',
@@ -30,8 +44,8 @@ export const mockRepresentatives: Representative[] = [
     newsSummaryForAI: 'Governor Jane Smith is lauded for improving healthcare facilities in Nairobi. However, there are ongoing discussions about county budget allocations and some public concerns about waste management contracts.'
   },
   {
-    id: '3',
-    slug: 'ali-omar-mp',
+    id: '4',
+    slug: 'ali-omar-mp-kibra',
     name: 'Ali Omar',
     photoUrl: 'https://placehold.co/300x300.png',
     position: 'MP',
@@ -44,8 +58,8 @@ export const mockRepresentatives: Representative[] = [
     newsSummaryForAI: 'MP Ali Omar is known for his vocal stance on youth unemployment. He has consistently advocated for more vocational training centers. No major scandals reported, but some critics question the impact of his sponsored bills.'
   },
   {
-    id: '4',
-    slug: 'mary-wambui-mca',
+    id: '5',
+    slug: 'mary-wambui-mca-karen',
     name: 'Mary Wambui',
     photoUrl: 'https://placehold.co/300x300.png',
     position: 'MCA',
@@ -56,6 +70,104 @@ export const mockRepresentatives: Representative[] = [
     votesGarnered: 12000,
     participationRecordSummary: 'Successfully lobbied for ward road repairs. Attends most county assembly sittings.',
     newsSummaryForAI: 'MCA Mary Wambui has focused on local infrastructure like roads and water supply. She has been transparent about ward development funds. Minor local disputes regarding market stall allocations were resolved amicably.'
+  },
+  {
+    id: '6',
+    slug: 'james-mwangi-governor-mombasa',
+    name: 'James Mwangi',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Governor',
+    constituencyOrWard: 'Mombasa County',
+    county: 'Mombasa',
+    contactInfo: { phone: '0711223344', email: 'governor.mombasa@example.com' },
+    party: 'Coastal Front',
+    votesGarnered: 250000,
+    participationRecordSummary: 'Focused on boosting tourism and improving port efficiency.',
+    newsSummaryForAI: 'Governor James Mwangi\'s administration has seen a rise in tourism numbers. He is currently facing challenges with solid waste management and urban housing.'
+  },
+  {
+    id: '7',
+    slug: 'susan-kihika-senator-nakuru',
+    name: 'Susan Kihika',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Senator',
+    constituencyOrWard: 'Nakuru County',
+    county: 'Nakuru',
+    contactInfo: { twitter: '@susankihika' },
+    party: 'UDA',
+    votesGarnered: 450000,
+    participationRecordSummary: 'Active in senate debates on devolution and county funding. Chairs the committee on trade.',
+    newsSummaryForAI: 'Senator Susan Kihika is a prominent figure in the senate, often contributing to legislative debates. She has been a strong advocate for increased resource allocation to counties.'
+  },
+  {
+    id: '8',
+    slug: 'gladys-wanga-women-rep-homa-bay',
+    name: 'Gladys Wanga',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Women Rep',
+    constituencyOrWard: 'Homa Bay County',
+    county: 'Homa Bay',
+    contactInfo: { email: 'wr.homabay@example.com' },
+    party: 'ODM',
+    votesGarnered: 300000,
+    participationRecordSummary: 'Championed initiatives for women and youth empowerment, including access to affirmative action funds.',
+    newsSummaryForAI: 'Gladys Wanga has been recognized for her work in empowering women economically through various county-level programs. She is a vocal supporter of gender equality legislation.'
+  },
+  {
+    id: '9',
+    slug: 'peter-kariuki-mp-thika-town',
+    name: 'Peter Kariuki',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'MP',
+    constituencyOrWard: 'Thika Town',
+    county: 'Kiambu',
+    contactInfo: { officeAddress: 'CDF Office, Thika' },
+    party: 'Jubilee',
+    votesGarnered: 72000,
+    participationRecordSummary: 'High attendance in parliamentary sessions. Focused on improving local school infrastructure.',
+    newsSummaryForAI: 'MP Peter Kariuki has allocated a significant portion of the CDF to school renovations and bursaries. He faces pressure from constituents to address traffic congestion in Thika Town.'
+  },
+  {
+    id: '10',
+    slug: 'fatuma-dullo-senator-isiolo',
+    name: 'Fatuma Dullo',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Senator',
+    constituencyOrWard: 'Isiolo County',
+    county: 'Isiolo',
+    contactInfo: { twitter: '@fatuma_dullo' },
+    party: 'Jubilee',
+    votesGarnered: 25000,
+    participationRecordSummary: 'Advocates for pastoralist communities and resource allocation for arid and semi-arid lands (ASAL).',
+    newsSummaryForAI: 'Senator Fatuma Dullo is a key voice for Northern Kenya issues, frequently speaking on matters of security, drought, and infrastructure development in the region.'
+  },
+  {
+    id: '11',
+    slug: 'abdul-swamad-governor-kisumu',
+    name: 'Abdul Swamad',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Governor',
+    constituencyOrWard: 'Kisumu County',
+    county: 'Kisumu',
+    contactInfo: { phone: '0722334455', email: 'governor.kisumu@example.com' },
+    party: 'ODM',
+    votesGarnered: 380000,
+    participationRecordSummary: 'Launched the Kisumu Urban Mobility Plan and has been working on revitalizing the lakefront.',
+    newsSummaryForAI: 'Governor Abdul Swamad\'s focus has been on urban renewal and trade. His administration is working to modernize city markets, though it has faced some resistance from traders on relocation plans.'
+  },
+  {
+    id: '12',
+    slug: 'esther-passaris-women-rep-nairobi',
+    name: 'Esther Passaris',
+    photoUrl: 'https://placehold.co/300x300.png',
+    position: 'Women Rep',
+    constituencyOrWard: 'Nairobi County',
+    county: 'Nairobi',
+    contactInfo: { twitter: '@estherpassaris' },
+    party: 'ODM',
+    votesGarnered: 650000,
+    participationRecordSummary: 'Runs several social programs targeting vulnerable women and girls in Nairobi.',
+    newsSummaryForAI: 'Esther Passaris is well-known for her social initiatives. She has faced public scrutiny over the management of the National Government Affirmative Action Fund (NGAAF) in her county, but has consistently defended her record.'
   }
 ];
 
@@ -88,13 +200,13 @@ export const mockCensusData: CensusData[] = [
 ];
 
 export const mockLeaderboardData: RankedRepresentative[] = mockRepresentatives
-  .slice(0, 3) // Take first 3 for example
+  .slice(0, 10) // Use more representatives for the leaderboard
   .map((rep, index) => ({
     ...rep,
     rank: index + 1,
-    overallScore: Math.floor(Math.random() * 50) + 50, // Score between 50-99
-    performanceScore: Math.floor(Math.random() * 50) + 50,
-    integrityScore: Math.floor(Math.random() * 40) + 60, // Integrity usually higher
+    overallScore: Math.floor(Math.random() * (98 - 75 + 1)) + 75, // Score between 75-98
+    performanceScore: Math.floor(Math.random() * (95 - 70 + 1)) + 70,
+    integrityScore: Math.floor(Math.random() * (99 - 80 + 1)) + 80, 
   }))
   .sort((a,b) => b.overallScore - a.overallScore)
   .map((rep, index) => ({...rep, rank: index + 1}));
