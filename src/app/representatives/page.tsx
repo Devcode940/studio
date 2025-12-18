@@ -8,9 +8,8 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Loader2 } from 'lucide-react';
-import { useCollection } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
 
 const positions = ["All", "President", "Deputy President", "Governor", "Senator", "MP", "MCA", "Women Rep"];
 
@@ -22,7 +21,7 @@ export default function RepresentativesPage() {
 
   const firestore = useFirestore();
 
-  const representativesQuery = useMemo(() => {
+  const representativesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'representatives'), orderBy('name', 'asc'));
   }, [firestore]);
