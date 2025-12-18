@@ -1,6 +1,7 @@
 
+'use client';
+
 import Image from 'next/image';
-import { getRepresentativeBySlug, mockPerformanceMetrics, mockHighlights } from '@/data/mock';
 import type { Representative } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,26 +9,53 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IntegrityReportGenerator } from '@/components/representatives/IntegrityReportGenerator';
 import { PerformanceMetricsDisplay } from '@/components/representatives/PerformanceMetricsDisplay';
 import { HighlightsDisplay } from '@/components/representatives/HighlightsDisplay';
-import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star } from 'lucide-react';
+import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-
-export async function generateStaticParams() {
-  // In a real app, fetch all slugs from a database
-  const { mockRepresentatives } = await import('@/data/mock');
-  return mockRepresentatives.map((rep) => ({
-    slug: rep.slug,
-  }));
-}
+import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { doc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { useEffect, useMemo } from 'react';
 
 interface RepresentativeProfilePageProps {
   params: { slug: string };
 }
 
-export default async function RepresentativeProfilePage({ params }: RepresentativeProfilePageProps) {
-  const representative = await getRepresentativeBySlug(params.slug);
+export default function RepresentativeProfilePage({ params }: RepresentativeProfilePageProps) {
+  const firestore = useFirestore();
 
+  const representativeQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'representatives'), where('slug', '==', params.slug), limit(1));
+  }, [firestore, params.slug]);
+
+  const { data: representativeData, isLoading: isLoadingRep } = useCollection<Representative>(representativeQuery);
+  const representative = representativeData?.[0];
+
+  const highlightsQuery = useMemo(() => {
+    if (!firestore || !representative?.id) return null;
+    return collection(firestore, 'representatives', representative.id, 'highlights');
+  }, [firestore, representative?.id]);
+  const { data: highlights, isLoading: isLoadingHighlights } = useCollection(highlightsQuery);
+
+  const performanceMetricsQuery = useMemo(() => {
+    if (!firestore || !representative?.id) return null;
+    return collection(firestore, 'representatives', representative.id, 'performance_metrics');
+  }, [firestore, representative?.id]);
+  const { data: performanceMetrics, isLoading: isLoadingMetrics } = useCollection(performanceMetricsQuery);
+
+
+  if (isLoadingRep) {
+    return (
+      <MainLayout>
+        <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="ml-4 text-lg font-medium">Loading representative...</p>
+        </div>
+      </MainLayout>
+    );
+  }
+  
   if (!representative) {
     return (
       <MainLayout>
@@ -43,10 +71,6 @@ export default async function RepresentativeProfilePage({ params }: Representati
       </MainLayout>
     );
   }
-
-  // Use mock data for now, in a real app these would be fetched based on representative.id
-  const performanceMetrics = mockPerformanceMetrics; 
-  const highlights = mockHighlights;
 
   return (
     <MainLayout>
@@ -130,7 +154,7 @@ export default async function RepresentativeProfilePage({ params }: Representati
           </TabsContent>
 
           <TabsContent value="performance" className="mt-6">
-            <PerformanceMetricsDisplay metrics={performanceMetrics} />
+            <PerformanceMetricsDisplay metrics={performanceMetrics ?? []} isLoading={isLoadingMetrics} />
           </TabsContent>
 
           <TabsContent value="integrity" className="mt-6">
@@ -138,7 +162,7 @@ export default async function RepresentativeProfilePage({ params }: Representati
           </TabsContent>
 
           <TabsContent value="highlights" className="mt-6">
-            <HighlightsDisplay highlights={highlights} />
+            <HighlightsDisplay highlights={highlights ?? []} isLoading={isLoadingHighlights} />
           </TabsContent>
         </Tabs>
       </div>

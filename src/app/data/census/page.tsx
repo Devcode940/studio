@@ -1,11 +1,14 @@
 
 "use client";
 
-import { mockCensusData } from '@/data/mock';
 import type { CensusData } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DataTable, type ColumnDefinition } from '@/components/shared/DataTable';
-import { Users } from 'lucide-react';
+import { Users, Loader2 } from 'lucide-react';
+import { useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { useMemo } from 'react';
 
 const columns: ColumnDefinition<CensusData>[] = [
   {
@@ -57,6 +60,15 @@ const columns: ColumnDefinition<CensusData>[] = [
 ];
 
 export default function CensusDataPage() {
+    const firestore = useFirestore();
+
+    const censusQuery = useMemo(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'census_data'), orderBy('totalPopulation', 'desc'));
+    }, [firestore]);
+
+    const { data: censusData, isLoading } = useCollection<CensusData>(censusQuery);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -68,14 +80,22 @@ export default function CensusDataPage() {
             Demographic information from the latest national census.
           </p>
         </header>
-        <DataTable
-          columns={columns}
-          data={mockCensusData}
-          searchableColumn="county"
-          searchPlaceholder="Search by county name..."
-          initialSortColumn="totalPopulation"
-          initialSortDirection="desc"
-        />
+        
+        {isLoading ? (
+             <div className="flex justify-center items-center py-20">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="ml-4 text-lg">Loading census data...</p>
+            </div>
+        ) : (
+            <DataTable
+            columns={columns}
+            data={censusData || []}
+            searchableColumn="county"
+            searchPlaceholder="Search by county name..."
+            initialSortColumn="totalPopulation"
+            initialSortDirection="desc"
+            />
+        )}
       </div>
     </MainLayout>
   );

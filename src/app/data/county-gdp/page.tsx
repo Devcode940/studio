@@ -1,11 +1,14 @@
 
 "use client";
 
-import { mockCountyGDP } from '@/data/mock';
 import type { CountyGDP } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DataTable, type ColumnDefinition } from '@/components/shared/DataTable';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Loader2 } from 'lucide-react';
+import { useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { useMemo } from 'react';
 
 const columns: ColumnDefinition<CountyGDP>[] = [
   {
@@ -31,15 +34,18 @@ const columns: ColumnDefinition<CountyGDP>[] = [
     header: 'Year',
     enableSorting: true,
   },
-  // Example for a more complex cell if sectorBreakdown was available
-  // {
-  //   accessorKey: 'sectorBreakdown',
-  //   header: 'Top Sector',
-  //   cell: ({ value }) => value && value.length > 0 ? `${value[0].sector} (${value[0].percentage}%)` : 'N/A',
-  // },
 ];
 
 export default function CountyGDPPage() {
+  const firestore = useFirestore();
+
+  const gdpQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'county_gdp'), orderBy('gdpMillionsKsh', 'desc'));
+  }, [firestore]);
+
+  const { data: countyGDPData, isLoading } = useCollection<CountyGDP>(gdpQuery);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -51,14 +57,22 @@ export default function CountyGDPPage() {
             Economic performance indicators for counties across Kenya.
           </p>
         </header>
-        <DataTable
-          columns={columns}
-          data={mockCountyGDP}
-          searchableColumn="county"
-          searchPlaceholder="Search by county name..."
-          initialSortColumn="gdpMillionsKsh"
-          initialSortDirection="desc"
-        />
+
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="ml-4 text-lg">Loading GDP data...</p>
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={countyGDPData || []}
+            searchableColumn="county"
+            searchPlaceholder="Search by county name..."
+            initialSortColumn="gdpMillionsKsh"
+            initialSortDirection="desc"
+          />
+        )}
       </div>
     </MainLayout>
   );

@@ -2,7 +2,7 @@
 import type { PerformanceMetric } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Minus, Info, BarChartHorizontalBig } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Info, BarChartHorizontalBig, Loader2 } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -12,6 +12,7 @@ import {
 
 interface PerformanceMetricsDisplayProps {
   metrics: PerformanceMetric[];
+  isLoading: boolean;
   title?: string;
 }
 
@@ -22,7 +23,27 @@ const TrendIcon = ({ trend }: { trend?: 'up' | 'down' | 'stable' }) => {
   return null;
 };
 
-export function PerformanceMetricsDisplay({ metrics, title = "Key Performance Indicators" }: PerformanceMetricsDisplayProps) {
+export function PerformanceMetricsDisplay({ metrics, isLoading, title = "Key Performance Indicators" }: PerformanceMetricsDisplayProps) {
+  if (isLoading) {
+      return (
+          <Card className="shadow-lg">
+              <CardHeader>
+                  <div className="flex items-center gap-3">
+                      <BarChartHorizontalBig className="mr-2 h-8 w-8 text-primary" />
+                      <div>
+                          <CardTitle className="font-headline text-xl">{title}</CardTitle>
+                          <CardDescription>Overview of the representative's performance based on available data.</CardDescription>
+                      </div>
+                  </div>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center py-10">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="ml-3 text-muted-foreground">Loading metrics...</p>
+              </CardContent>
+          </Card>
+      );
+  }
+    
   if (!metrics || metrics.length === 0) {
     return (
       <Card className="shadow-md">

@@ -1,14 +1,18 @@
 
 "use client";
 
-import { mockLeaderboardData } from '@/data/mock';
+import { useMemo } from 'react';
 import type { RankedRepresentative } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { DataTable, type ColumnDefinition } from '@/components/shared/DataTable';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { Crown } from 'lucide-react';
+import { Crown, Loader2 } from 'lucide-react';
+import { useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+
 
 const columns: ColumnDefinition<RankedRepresentative>[] = [
   {
@@ -64,6 +68,25 @@ const columns: ColumnDefinition<RankedRepresentative>[] = [
 ];
 
 export default function LeaderboardPage() {
+  const firestore = useFirestore();
+  
+  const leaderboardQuery = useMemo(() => {
+      if (!firestore) return null;
+      return query(collection(firestore, 'leaderboard_entries'), orderBy('rank', 'asc'));
+  }, [firestore]);
+
+  const { data: leaderboardData, isLoading } = useCollection<RankedRepresentative>(leaderboardQuery);
+
+  const uniquePositions = useMemo(() => {
+    if (!leaderboardData) return [];
+    return [...new Set(leaderboardData.map(item => item.position))];
+  }, [leaderboardData]);
+
+  const uniqueCounties = useMemo(() => {
+    if (!leaderboardData) return [];
+    return [...new Set(leaderboardData.map(item => item.county))];
+  }, [leaderboardData]);
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -73,26 +96,34 @@ export default function LeaderboardPage() {
             Ranking representatives based on various performance and integrity metrics.
           </p>
         </header>
-        <DataTable
-          columns={columns}
-          data={mockLeaderboardData}
-          searchableColumn="name"
-          searchPlaceholder="Search by name..."
-          initialSortColumn="rank"
-          initialSortDirection="asc"
-          filterOptions={[
-            {
-              label: "Position",
-              column: "position",
-              options: [...new Set(mockLeaderboardData.map(item => item.position))].map(pos => ({value: pos, label: pos}))
-            },
-            {
-              label: "County",
-              column: "county",
-              options: [...new Set(mockLeaderboardData.map(item => item.county))].map(county => ({value: county, label: county}))
-            }
-          ]}
-        />
+
+        {isLoading ? (
+             <div className="flex justify-center items-center py-20">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="ml-4 text-lg">Loading leaderboard...</p>
+            </div>
+        ) : (
+            <DataTable
+            columns={columns}
+            data={leaderboardData || []}
+            searchableColumn="name"
+            searchPlaceholder="Search by name..."
+            initialSortColumn="rank"
+            initialSortDirection="asc"
+            filterOptions={[
+                {
+                label: "Position",
+                column: "position",
+                options: uniquePositions.map(pos => ({value: pos, label: pos}))
+                },
+                {
+                label: "County",
+                column: "county",
+                options: uniqueCounties.map(county => ({value: county, label: county}))
+                }
+            ]}
+            />
+        )}
       </div>
     </MainLayout>
   );

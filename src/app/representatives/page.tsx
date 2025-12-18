@@ -1,32 +1,50 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { RepresentativeCard } from '@/components/representatives/RepresentativeCard';
-import { mockRepresentatives } from '@/data/mock';
 import type { Representative } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
+import { useCollection } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 const positions = ["All", "President", "Deputy President", "Governor", "Senator", "MP", "MCA", "Women Rep"];
-const counties = ["All", ...new Set(mockRepresentatives.map(r => r.county).filter(Boolean))];
-
 
 export default function RepresentativesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPosition, setSelectedPosition] = useState('All');
   const [selectedCounty, setSelectedCounty] = useState('All');
+  const [allCounties, setAllCounties] = useState<string[]>(["All"]);
 
+  const firestore = useFirestore();
+
+  const representativesQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'representatives'), orderBy('name', 'asc'));
+  }, [firestore]);
+
+  const { data: representatives, isLoading } = useCollection<Representative>(representativesQuery);
+
+  useEffect(() => {
+    if (representatives) {
+      const uniqueCounties = ["All", ...new Set(representatives.map(r => r.county).filter(Boolean))];
+      setAllCounties(uniqueCounties.sort());
+    }
+  }, [representatives]);
+  
   const filteredRepresentatives = useMemo(() => {
-    return mockRepresentatives.filter((rep) => {
+    if (!representatives) return [];
+    return representatives.filter((rep) => {
       const nameMatch = rep.name.toLowerCase().includes(searchTerm.toLowerCase());
       const positionMatch = selectedPosition === 'All' || rep.position === selectedPosition;
       const countyMatch = selectedCounty === 'All' || rep.county === selectedCounty;
       return nameMatch && positionMatch && countyMatch;
     });
-  }, [searchTerm, selectedPosition, selectedCounty]);
+  }, [representatives, searchTerm, selectedPosition, selectedCounty]);
 
   return (
     <MainLayout>
@@ -63,20 +81,27 @@ export default function RepresentativesPage() {
                 <SelectValue placeholder="Filter by county" />
               </SelectTrigger>
               <SelectContent>
-                {counties.map(county => <SelectItem key={county} value={county}>{county === "All" ? "All Counties" : county}</SelectItem>)}
+                {allCounties.map(county => <SelectItem key={county} value={county}>{county === "All" ? "All Counties" : county}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        {filteredRepresentatives.length > 0 ? (
+        {isLoading && (
+            <div className="flex justify-center items-center py-20">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="ml-4 text-lg">Loading representatives...</p>
+            </div>
+        )}
+
+        {!isLoading && filteredRepresentatives.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredRepresentatives.map((rep: Representative) => (
               <RepresentativeCard key={rep.id} representative={rep} />
             ))}
           </div>
         ) : (
-          <p className="text-center text-muted-foreground py-10 text-lg">
+          !isLoading && <p className="text-center text-muted-foreground py-10 text-lg">
             No representatives found matching your criteria.
           </p>
         )}

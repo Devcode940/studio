@@ -1,12 +1,17 @@
 
+import { type LucideIcon } from "lucide-react";
+
 export interface Representative {
   id: string;
   slug: string;
   name: string;
   photoUrl: string;
   position: 'President' | 'Deputy President' | 'Governor' | 'Senator' | 'MP' | 'MCA' | 'Women Rep';
-  constituencyOrWard: string; // Constituency for MP, Ward for MCA
-  county: string; // County they represent or are based in
+  constituencyOrWard: string;
+  county: string;
+  party: string;
+  votesGarnered?: number;
+  participationRecordSummary?: string;
   contactInfo: {
     phone?: string;
     email?: string;
@@ -14,19 +19,23 @@ export interface Representative {
     twitter?: string;
     facebook?: string;
   };
-  party: string;
-  votesGarnered?: number;
-  participationRecordSummary?: string; // Summary of participation (e.g., bills sponsored, attendance)
-  newsSummaryForAI?: string; // Pre-compiled news summary for AI processing
+  // Fields that will come from subcollections
+  performanceMetrics?: PerformanceMetric[];
+  highlights?: Highlight[];
+  integrityReport?: {
+    reportSummary: string;
+    reportDate: string; // ISO String
+    sourceUrls: string[];
+  };
 }
 
 export interface PerformanceMetric {
   id: string;
-  name: string; // e.g., "Bills Sponsored", "Meeting Attendance", "Development Projects Initiated"
+  name: string;
   value: string | number;
-  unit?: string; // e.g., "%", "count"
+  unit?: string;
   description?: string;
-  source?: string; // Where this data comes from
+  source?: string;
   trend?: 'up' | 'down' | 'stable';
 }
 
@@ -39,26 +48,25 @@ export interface Highlight {
   sourceUrl?: string;
 }
 
+
 export interface CountyGDP {
   id: string;
   county: string;
   gdpMillionsKsh: number;
   year: number;
   gdpPerCapitaKsh?: number;
-  sectorBreakdown?: { sector: string; percentage: number }[];
 }
 
 export interface CensusData {
-  id: string;
-  county: string;
-  totalPopulation: number;
-  malePopulation: number;
-  femalePopulation: number;
-  intersexPopulation: number;
-  householdCount: number;
-  averageHouseholdSize: number;
-  populationDensity: number; // persons per sq km
-  year: number;
+    id: string;
+    county: string;
+    totalPopulation: number;
+    malePopulation: number;
+    femalePopulation: number;
+    householdCount: number;
+    averageHouseholdSize: number;
+    populationDensity: number;
+    year: number;
 }
 
 export interface User {
@@ -72,12 +80,12 @@ export interface RankedRepresentative extends Representative {
   overallScore: number;
   performanceScore?: number;
   integrityScore?: number;
-  publicSentimentScore?: number; // Example of another metric
 }
+
 
 export interface NavItem {
   href: string;
   label: string;
-  icon?: React.ElementType;
-  protected?: boolean; // If true, only visible/accessible to logged-in users
+  icon?: LucideIcon;
+  protected?: boolean;
 }

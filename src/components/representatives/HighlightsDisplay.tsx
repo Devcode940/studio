@@ -2,10 +2,11 @@
 import type { Highlight } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { Star, ThumbsUp, MessageSquare, ExternalLink, Trophy } from 'lucide-react';
+import { Star, ThumbsUp, MessageSquare, ExternalLink, Trophy, Loader2 } from 'lucide-react';
 
 interface HighlightsDisplayProps {
   highlights: Highlight[];
+  isLoading: boolean;
   title?: string;
 }
 
@@ -19,7 +20,27 @@ const CategoryIcon = ({ category }: { category: Highlight['category'] }) => {
   }
 };
 
-export function HighlightsDisplay({ highlights, title = "Key Highlights" }: HighlightsDisplayProps) {
+export function HighlightsDisplay({ highlights, isLoading, title = "Key Highlights" }: HighlightsDisplayProps) {
+  if (isLoading) {
+    return (
+        <Card className="shadow-lg">
+            <CardHeader>
+                <div className="flex items-center gap-3">
+                    <Star className="mr-2 h-8 w-8 text-primary" />
+                    <div>
+                        <CardTitle className="font-headline text-xl">{title}</CardTitle>
+                        <CardDescription>Notable achievements, votes, statements, and projects.</CardDescription>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="flex items-center justify-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-3 text-muted-foreground">Loading highlights...</p>
+            </CardContent>
+        </Card>
+    );
+  }
+    
   if (!highlights || highlights.length === 0) {
     return (
       <Card className="shadow-md">
