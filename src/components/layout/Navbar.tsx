@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Home, Users, BarChartBig, Landmark, Database, LogIn, LogOut, LayoutDashboard, Menu } from 'lucide-react';
+import { ShieldCheck, Home, Users, BarChartBig, Landmark, Database, LogIn, LogOut, LayoutDashboard, Menu, DownloadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { href: '/data/county-gdp', label: 'County GDP', icon: Landmark },
   { href: '/data/census', label: 'Census Data', icon: Database },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, protected: true },
+  { href: '/dashboard/data-management', label: 'Data Management', icon: DownloadCloud, protected: true },
 ];
 
 export function Navbar() {

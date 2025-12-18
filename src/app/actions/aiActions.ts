@@ -3,6 +3,7 @@
 
 import { summarizeIntegrityReport, type IntegrityReportInput, type IntegrityReportOutput } from "@/ai/flows/summarize-integrity-report";
 import { factCheckRepresentative, type FactCheckInput, type FactCheckOutput } from "@/ai/flows/fact-check-representative";
+import { fetchEconomicData, type FetchEconomicDataOutput } from "@/ai/flows/fetch-economic-data";
 
 
 interface ActionResult<T> {
@@ -47,4 +48,14 @@ export async function factCheckRepresentativeAction(
     console.error("Error in factCheckRepresentativeAction:", error);
     return { success: false, error: (error as Error).message || "An unexpected error occurred while generating the report." };
   }
+}
+
+export async function fetchEconomicDataAction(): Promise<ActionResult<FetchEconomicDataOutput>> {
+    try {
+        const output = await fetchEconomicData();
+        return { success: true, data: output };
+    } catch (error) {
+        console.error("Error in fetchEconomicDataAction:", error);
+        return { success: false, error: (error as Error).message || "An unexpected error occurred while fetching data." };
+    }
 }
