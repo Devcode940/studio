@@ -5,35 +5,35 @@ import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DownloadCloud, Loader2, Server, FileJson } from 'lucide-react';
+import { DownloadCloud, Loader2, Server, Database, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { fetchEconomicDataAction } from '@/app/actions/aiActions';
 import type { FetchEconomicDataOutput } from '@/ai/flows/fetch-economic-data';
 
 export default function DataManagementPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<FetchEconomicDataOutput | null>(null);
+  const [lastResult, setLastResult] = useState<FetchEconomicDataOutput | null>(null);
   const { toast } = useToast();
 
   const handleFetchData = async () => {
     setIsLoading(true);
-    setResult(null);
+    setLastResult(null);
     try {
       const actionResult = await fetchEconomicDataAction();
       if (actionResult.success && actionResult.data) {
-        setResult(actionResult.data);
+        setLastResult(actionResult.data);
         toast({
-          title: 'Data Fetch Successful',
+          title: 'Database Update Successful',
           description: actionResult.data.summary,
         });
       } else {
-        throw new Error(actionResult.error || 'Failed to fetch data.');
+        throw new Error(actionResult.error || 'Failed to fetch and update data.');
       }
     } catch (error) {
-      console.error('Error fetching economic data:', error);
+      console.error('Error in data management action:', error);
       toast({
         variant: 'destructive',
-        title: 'Error Fetching Data',
+        title: 'Error Updating Database',
         description: (error as Error).message || 'An unexpected error occurred.',
       });
     } finally {
@@ -58,16 +58,16 @@ export default function DataManagementPage() {
                 <div>
                     <CardTitle className="font-headline text-xl">Update Economic Data</CardTitle>
                     <CardDescription>
-                        Fetch the latest County GDP and Census data.
+                        Fetch the latest County GDP and Census data and write it to the Firestore database.
                     </CardDescription>
                 </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              This tool simulates fetching the most recent economic data from an external API (like the Kenya National Bureau of Statistics). Clicking the button will trigger an AI flow that retrieves the data.
+              This tool simulates fetching the most recent economic data from an external API and writes the results directly to your Firestore database. This is a real database operation.
               <br />
-              <strong>Note:</strong> In a real-world application, this process would securely update the Firestore database. For this demo, it just displays the fetched data.
+              <strong>Note:</strong> Refreshing the County GDP or Census Data pages after running this will show the newly updated information.
             </p>
           </CardContent>
           <CardFooter className="flex-col items-start gap-4">
@@ -75,36 +75,28 @@ export default function DataManagementPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Fetching Data...
+                  Fetching & Saving...
                 </>
               ) : (
                 <>
                   <DownloadCloud className="mr-2 h-4 w-4" />
-                  Fetch Latest Economic Data
+                  Update Database from Source
                 </>
               )}
             </Button>
 
-            {result && (
+            {lastResult && (
               <div className="w-full pt-4 border-t">
                  <h3 className="font-headline text-lg font-semibold mb-2 flex items-center">
-                    <FileJson className="mr-2 h-5 w-5 text-primary" />
-                    Fetched Data
+                    <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
+                    Update Complete
                 </h3>
-                <p className="text-sm mb-4 italic text-muted-foreground">{result.summary}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <h4 className="font-semibold mb-2">New GDP Data:</h4>
-                        <pre className="text-xs p-4 bg-muted rounded-md max-h-60 overflow-auto">
-                            {JSON.stringify(result.newGdpData, null, 2)}
-                        </pre>
-                    </div>
-                    <div>
-                        <h4 className="font-semibold mb-2">New Census Data:</h4>
-                        <pre className="text-xs p-4 bg-muted rounded-md max-h-60 overflow-auto">
-                            {JSON.stringify(result.newCensusData, null, 2)}
-                        </pre>
-                    </div>
+                <div className="p-4 bg-muted rounded-md text-sm">
+                  <p>{lastResult.summary}</p>
+                  <ul className="list-disc pl-5 mt-2">
+                    <li><span className="font-semibold">{lastResult.gdpCount}</span> GDP records processed.</li>
+                    <li><span className="font-semibold">{lastResult.censusCount}</span> Census records processed.</li>
+                  </ul>
                 </div>
               </div>
             )}
