@@ -4,6 +4,7 @@
 import { summarizeIntegrityReport, type IntegrityReportInput, type IntegrityReportOutput } from "@/ai/flows/summarize-integrity-report";
 import { factCheckRepresentative, type FactCheckInput, type FactCheckOutput } from "@/ai/flows/fact-check-representative";
 import { fetchEconomicData, type FetchEconomicDataOutput } from "@/ai/flows/fetch-economic-data";
+import { generateSocialHighlights, type SocialHighlightsInput, type SocialHighlightsOutput } from "@/ai/flows/generate-social-highlights";
 
 
 interface ActionResult<T> {
@@ -58,4 +59,19 @@ export async function fetchEconomicDataAction(): Promise<ActionResult<FetchEcono
         console.error("Error in fetchEconomicDataAction:", error);
         return { success: false, error: (error as Error).message || "An unexpected error occurred while fetching data." };
     }
+}
+
+export async function generateSocialHighlightsAction(
+  input: SocialHighlightsInput
+): Promise<ActionResult<SocialHighlightsOutput>> {
+  try {
+    if (!input.representativeId || !input.representativeName) {
+      return { success: false, error: "Representative ID and name are required." };
+    }
+    const output = await generateSocialHighlights(input);
+    return { success: true, data: output };
+  } catch (error) {
+    console.error("Error in generateSocialHighlightsAction:", error);
+    return { success: false, error: (error as Error).message || "An unexpected error occurred." };
+  }
 }

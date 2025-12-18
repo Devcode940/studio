@@ -43,7 +43,7 @@ service cloud.firestore {
 
       match /highlights/{highlightId} {
         allow read: if true;
-        allow write: if false;
+        allow write: if isSignedIn();
       }
     }
 

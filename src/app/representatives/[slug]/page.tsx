@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IntegrityReportGenerator } from '@/components/representatives/IntegrityReportGenerator';
 import { PerformanceMetricsDisplay } from '@/components/representatives/PerformanceMetricsDisplay';
 import { HighlightsDisplay } from '@/components/representatives/HighlightsDisplay';
-import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star, Loader2 } from 'lucide-react';
+import { SocialHighlightsGenerator } from '@/components/representatives/SocialHighlightsGenerator';
+import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star, Rss, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -128,11 +129,12 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
             <TabsTrigger value="overview"><Info className="mr-2 h-4 w-4" />Overview</TabsTrigger>
             <TabsTrigger value="performance"><Activity className="mr-2 h-4 w-4" />Performance</TabsTrigger>
             <TabsTrigger value="integrity"><ShieldCheck className="mr-2 h-4 w-4" />Integrity</TabsTrigger>
             <TabsTrigger value="highlights"><Star className="mr-2 h-4 w-4" />Highlights</TabsTrigger>
+            <TabsTrigger value="social"><Rss className="mr-2 h-4 w-4" />Social Feed</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
@@ -162,6 +164,10 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
 
           <TabsContent value="highlights" className="mt-6">
             <HighlightsDisplay highlights={highlights ?? []} isLoading={isLoadingHighlights} />
+          </TabsContent>
+
+          <TabsContent value="social" className="mt-6">
+            <SocialHighlightsGenerator representative={representative} />
           </TabsContent>
         </Tabs>
       </div>
