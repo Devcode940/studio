@@ -10,6 +10,7 @@ import { IntegrityReportGenerator } from '@/components/representatives/Integrity
 import { PerformanceMetricsDisplay } from '@/components/representatives/PerformanceMetricsDisplay';
 import { HighlightsDisplay } from '@/components/representatives/HighlightsDisplay';
 import { SocialHighlightsGenerator } from '@/components/representatives/SocialHighlightsGenerator';
+import { AddPerformanceMetric } from '@/components/representatives/AddPerformanceMetric';
 import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star, Rss, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -156,6 +157,7 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
 
           <TabsContent value="performance" className="mt-6">
             <PerformanceMetricsDisplay metrics={performanceMetrics ?? []} isLoading={isLoadingMetrics} />
+            <AddPerformanceMetric representativeId={representative.id} />
           </TabsContent>
 
           <TabsContent value="integrity" className="mt-6">

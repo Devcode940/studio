@@ -25,25 +25,24 @@ service cloud.firestore {
       allow write: if isSignedIn();
     }
     
-    // Representatives and related subcollections remain read-only for clients.
-    // Data should be managed via a backend/admin process.
+    // Representatives and related subcollections
     match /representatives/{representativeId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if false; // Clients can't edit the main representative doc
 
       match /performance_metrics/{metricId} {
         allow read: if true;
-        allow write: if false;
+        allow write: if isSignedIn(); // Logged-in users can add metrics
       }
 
       match /integrity_reports/{reportId} {
         allow read: if true;
-        allow write: if false;
+        allow write: if false; // Should be managed by a backend process
       }
 
       match /highlights/{highlightId} {
         allow read: if true;
-        allow write: if isSignedIn();
+        allow write: if isSignedIn(); // Logged-in users can generate highlights
       }
     }
 
