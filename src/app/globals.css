@@ -107,3 +107,24 @@ h1, h2, h3, h4, h5, h6 {
     @apply bg-background text-foreground;
   }
 }
+
+/* Kenyan Flag Animation */
+@layer utilities {
+  .kenya-flag-animate {
+    background: linear-gradient(270deg, #000000, #FFFFFF, #B22234, #FFFFFF, #008000, #FFFFFF, #B22234, #FFFFFF, #000000);
+    background-size: 600% 600%;
+    animation: kenyan-flag-animation 10s ease infinite;
+  }
+
+  @keyframes kenyan-flag-animation {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
