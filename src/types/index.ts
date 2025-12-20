@@ -27,6 +27,7 @@ export interface Representative {
     reportDate: string; // ISO String
     sourceUrls: string[];
   };
+  reviews?: Review[];
 }
 
 export interface PerformanceMetric {
@@ -48,6 +49,14 @@ export interface Highlight {
   sourceUrl?: string;
 }
 
+export interface Review {
+  id: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string; // ISO date string
+}
 
 export interface CountyGDP {
   id: string;
@@ -73,6 +82,7 @@ export interface User {
   id:string;
   email: string;
   name?: string;
+  uid: string; // Add uid
 }
 
 export interface RankedRepresentative extends Representative {

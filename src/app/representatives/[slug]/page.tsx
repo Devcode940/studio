@@ -11,7 +11,8 @@ import { PerformanceMetricsDisplay } from '@/components/representatives/Performa
 import { HighlightsDisplay } from '@/components/representatives/HighlightsDisplay';
 import { SocialHighlightsGenerator } from '@/components/representatives/SocialHighlightsGenerator';
 import { AddPerformanceMetric } from '@/components/representatives/AddPerformanceMetric';
-import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star, Rss, Loader2 } from 'lucide-react';
+import { CommunityReviews } from '@/components/representatives/CommunityReviews';
+import { Mail, Phone, MapPin, Building, Users, Twitter, Facebook, ArrowLeft, Info, Activity, ShieldCheck, Star, Rss, Loader2, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -130,12 +131,13 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
 
         {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
             <TabsTrigger value="overview"><Info className="mr-2 h-4 w-4" />Overview</TabsTrigger>
             <TabsTrigger value="performance"><Activity className="mr-2 h-4 w-4" />Performance</TabsTrigger>
             <TabsTrigger value="integrity"><ShieldCheck className="mr-2 h-4 w-4" />Integrity</TabsTrigger>
             <TabsTrigger value="highlights"><Star className="mr-2 h-4 w-4" />Highlights</TabsTrigger>
             <TabsTrigger value="social"><Rss className="mr-2 h-4 w-4" />Social Feed</TabsTrigger>
+            <TabsTrigger value="community"><MessageCircle className="mr-2 h-4 w-4" />Community</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
@@ -170,6 +172,10 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
 
           <TabsContent value="social" className="mt-6">
             <SocialHighlightsGenerator representative={representative} />
+          </TabsContent>
+          
+          <TabsContent value="community" className="mt-6">
+            <CommunityReviews representativeId={representative.id} />
           </TabsContent>
         </Tabs>
       </div>

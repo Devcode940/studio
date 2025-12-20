@@ -4,28 +4,35 @@
 import type { User } from '@/types';
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 
+// This is a simplified User type for the context.
+// In a real Firebase app, you would import the User type from 'firebase/auth'.
+interface MockUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: MockUser | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<void>; // Simplified
+  login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Placeholder for checking existing session (e.g., from localStorage or a cookie)
-    // For now, assume no user is logged in on initial load for simplicity
+    // Placeholder for checking existing session
     const checkLoggedIn = async () => {
       try {
-        // const storedUser = localStorage.getItem('kenyaWatchUser');
-        // if (storedUser) {
-        //   setUser(JSON.parse(storedUser));
-        // }
+        const storedUser = sessionStorage.getItem('kenyaWatchUser');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
       } catch (error) {
         console.error("Failed to load user from storage", error);
       } finally {
@@ -39,9 +46,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    const mockUser: User = { id: '123', email, name: email.split('@')[0] };
+    // NOTE: In a real app, the UID would come from Firebase Auth.
+    // We use a simple hash of the email for a stable mock UID.
+    const mockUser: MockUser = { 
+        uid: `mock-uid-${email}`, 
+        email, 
+        displayName: email.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    };
     setUser(mockUser);
-    // localStorage.setItem('kenyaWatchUser', JSON.stringify(mockUser));
+    sessionStorage.setItem('kenyaWatchUser', JSON.stringify(mockUser));
     setLoading(false);
   };
 
@@ -50,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 500));
     setUser(null);
-    // localStorage.removeItem('kenyaWatchUser');
+    sessionStorage.removeItem('kenyaWatchUser');
     setLoading(false);
   };
 

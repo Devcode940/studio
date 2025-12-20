@@ -8,6 +8,11 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Helper function to check if the user is the owner of a document.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
     // Default to read-only for most collections, allows public access.
     // Writes are disallowed unless explicitly overridden.
     match /{document=**} {
@@ -43,6 +48,20 @@ service cloud.firestore {
       match /highlights/{highlightId} {
         allow read: if true;
         allow write: if isSignedIn(); // Logged-in users can generate highlights
+      }
+
+      match /reviews/{reviewId} {
+        allow read: if true;
+        // Allow any signed-in user to create a review.
+        allow create: if isSignedIn()
+                      // Ensure the incoming data matches the expected schema.
+                      && request.resource.data.userId == request.auth.uid
+                      && request.resource.data.rating is number
+                      && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+                      && request.resource.data.comment is string
+                      && request.resource.data.createdAt == request.time;
+        // Allow users to update or delete only their own reviews.
+        allow update, delete: if isOwner(resource.data.userId);
       }
     }
 

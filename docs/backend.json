@@ -119,6 +119,21 @@
         "sourceUrl": { "type": "string", "format": "uri" }
       },
       "required": ["id", "title", "date", "description", "category"]
+    },
+    "Review": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Review",
+      "type": "object",
+      "description": "A user-submitted review and rating for a representative.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string", "description": "The ID of the user who wrote the review." },
+        "userName": { "type": "string", "description": "The name of the user who wrote the review." },
+        "rating": { "type": "number", "minimum": 1, "maximum": 5, "description": "A star rating from 1 to 5." },
+        "comment": { "type": "string", "description": "The user's written comment." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the review was created." }
+      },
+      "required": ["id", "userId", "userName", "rating", "comment", "createdAt"]
     }
   },
   "auth": {
@@ -140,6 +155,10 @@
     "/representatives/{representativeId}/highlights/{highlightId}": {
       "schema": { "$ref": "#/entities/Highlight" },
       "description": "Stores highlights for each representative. Data is publicly accessible."
+    },
+    "/representatives/{representativeId}/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Stores user-submitted reviews for each representative. Publicly readable, writable by authenticated users."
     },
     "/leaderboard_entries/{leaderboardEntryId}": {
       "schema": { "$ref": "#/entities/LeaderboardEntry" },
