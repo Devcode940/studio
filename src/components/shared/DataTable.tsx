@@ -81,8 +81,13 @@ export function DataTable<T extends Record<string, any>>({
 
     if (sortConfig.key) {
       filteredData.sort((a, b) => {
-        const valA = typeof sortConfig.key === 'string' ? getNestedValue(a, sortConfig.key) : a[sortConfig.key];
-        const valB = typeof sortConfig.key === 'string' ? getNestedValue(b, sortConfig.key) : b[sortConfig.key];
+        const key = sortConfig.key as string;
+        const valA = typeof key === 'string' && (key.includes('.') || typeof a[key] === 'undefined' || typeof (a as any)[key.split('.')[0]] === 'object') 
+          ? getNestedValue(a, key) 
+          : (a as any)[key];
+        const valB = typeof key === 'string' && (key.includes('.') || typeof b[key] === 'undefined' || typeof (b as any)[key.split('.')[0]] === 'object')
+          ? getNestedValue(b, key)
+          : (b as any)[key];
         
         if (valA < valB) {
           return sortConfig.direction === 'asc' ? -1 : 1;

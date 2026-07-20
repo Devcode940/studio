@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -29,7 +30,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth } from '@/hooks/useAuth';
+import { useFirestore } from '@/firebase';
 import { addDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { collection } from 'firebase/firestore';
 import { PlusCircle, Loader2 } from 'lucide-react';
@@ -37,7 +39,7 @@ import type { PerformanceMetric } from '@/types';
 
 const performanceMetricSchema = z.object({
   name: z.string().min(3, 'Metric name is required.'),
-  value: z.string().min(1, 'Metric value is required.'), // Taking as string to be flexible
+  value: z.string().min(1, 'Metric value is required.'),
   unit: z.string().optional(),
   description: z.string().optional(),
   source: z.string().optional(),
@@ -54,7 +56,7 @@ export function AddPerformanceMetric({ representativeId }: AddPerformanceMetricP
   const { user } = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<PerformanceMetricFormValues>({
     resolver: zodResolver(performanceMetricSchema),
@@ -71,7 +73,6 @@ export function AddPerformanceMetric({ representativeId }: AddPerformanceMetricP
   async function onSubmit(data: PerformanceMetricFormValues) {
     setIsLoading(true);
     
-    // Convert value to number if possible
     const numericValue = !isNaN(Number(data.value)) ? Number(data.value) : data.value;
 
     const newMetric: Omit<PerformanceMetric, 'id'> = {
@@ -88,7 +89,6 @@ export function AddPerformanceMetric({ representativeId }: AddPerformanceMetricP
 
     try {
         const metricsCollection = collection(firestore, 'representatives', representativeId, 'performance_metrics');
-        // This is a non-blocking call
         addDocumentNonBlocking(metricsCollection, newMetric);
 
         toast({
@@ -128,7 +128,7 @@ export function AddPerformanceMetric({ representativeId }: AddPerformanceMetricP
             Add a New Performance Metric
         </CardTitle>
         <CardDescription>
-          Contribute to this representative's profile by adding a relevant performance indicator.
+          Contribute to this representative&apos;s profile by adding a relevant performance indicator.
         </CardDescription>
       </CardHeader>
       <CardContent>

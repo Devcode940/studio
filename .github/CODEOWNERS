@@ -1,0 +1,16 @@
+# CODEOWNERS – Change Management Control
+# Higher-risk paths require enhanced review
+
+# Default owners for everything
+* @Devcode940
+
+# Security-critical paths require 2 reviewers + security
+/firestore.rules @Devcode940 @security-team
+/src/ai/flows/ @Devcode940 @ai-governance-team
+/src/firebase/ @Devcode940
+/.github/workflows/ @Devcode940 @devops-team
+/src/app/actions/ @Devcode940
+
+# Sensitive data handling
+/src/types/index.ts @Devcode940
+/docs/compliance/ @Devcode940 @security-team

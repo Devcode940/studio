@@ -1,6 +1,9 @@
 {
-  "name": "nextn",
+  "name": "kenyawatch",
   "version": "0.1.0",
+  "description": "KenyaWatch - Monitoring Kenyan elected representatives for accountability and transparency",
+  "author": "Devcode940",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 9002",

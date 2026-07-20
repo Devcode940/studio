@@ -1,74 +1,152 @@
-
 "use client";
 
-import type { User } from '@/types';
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import {
+  User as FirebaseUser,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  updateProfile,
+} from 'firebase/auth';
+import { useFirebaseApp } from '@/firebase';
+import { getAuth } from 'firebase/auth';
+import { logger } from '@/lib/logger';
 
-// This is a simplified User type for the context.
-// In a real Firebase app, you would import the User type from 'firebase/auth'.
-interface MockUser {
+// Real user type, compatible with previous MockUser but using FirebaseUser
+export interface AppUser {
   uid: string;
   email: string | null;
   displayName: string | null;
+  photoURL: string | null;
+  emailVerified: boolean;
+  isAdmin: boolean;
 }
 
 interface AuthContextType {
-  user: MockUser | null;
+  user: AppUser | null;
+  firebaseUser: FirebaseUser | null;
   loading: boolean;
+  isAdmin: boolean;
   login: (email: string, pass: string) => Promise<void>;
+  register: (email: string, pass: string, displayName?: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<MockUser | null>(null);
+  const firebaseApp = useFirebaseApp();
+  const auth = getAuth(firebaseApp);
+
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Placeholder for checking existing session
-    const checkLoggedIn = async () => {
-      try {
-        const storedUser = sessionStorage.getItem('kenyaWatchUser');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-      } catch (error) {
-        console.error("Failed to load user from storage", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkLoggedIn();
-  }, []);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setFirebaseUser(fbUser);
+      
+      if (fbUser) {
+        try {
+          const tokenResult = await fbUser.getIdTokenResult();
+          const adminClaim = !!tokenResult.claims.admin || tokenResult.claims.role === 'admin';
+          setIsAdmin(adminClaim);
 
-  const login = async (email: string, _pass: string) => {
+          const appUser: AppUser = {
+            uid: fbUser.uid,
+            email: fbUser.email,
+            displayName: fbUser.displayName,
+            photoURL: fbUser.photoURL,
+            emailVerified: fbUser.emailVerified,
+            isAdmin: adminClaim,
+          };
+          setUser(appUser);
+          logger.info('User authenticated', { uid: fbUser.uid, isAdmin: adminClaim });
+        } catch (err) {
+          logger.error('Failed to get ID token result', err, { uid: fbUser.uid });
+          // Fallback to basic user
+          setUser({
+            uid: fbUser.uid,
+            email: fbUser.email,
+            displayName: fbUser.displayName,
+            photoURL: fbUser.photoURL,
+            emailVerified: fbUser.emailVerified,
+            isAdmin: false,
+          });
+        }
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
+  const login = async (email: string, pass: string) => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // NOTE: In a real app, the UID would come from Firebase Auth.
-    // We use a simple hash of the email for a stable mock UID.
-    const mockUser: MockUser = { 
-        uid: `mock-uid-${email}`, 
-        email, 
-        displayName: email.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    };
-    setUser(mockUser);
-    sessionStorage.setItem('kenyaWatchUser', JSON.stringify(mockUser));
-    setLoading(false);
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      logger.info('User logged in via email', { email });
+    } catch (err) {
+      logger.error('Login failed', err, { email });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (email: string, pass: string, displayName?: string) => {
+    setLoading(true);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      if (displayName && cred.user) {
+        await updateProfile(cred.user, { displayName });
+      }
+      logger.info('User registered', { email, uid: cred.user.uid });
+    } catch (err) {
+      logger.error('Registration failed', err, { email });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      logger.info('User logged in via Google', { uid: result.user.uid, email: result.user.email });
+    } catch (err) {
+      logger.error('Google login failed', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setUser(null);
-    sessionStorage.removeItem('kenyaWatchUser');
-    setLoading(false);
+    try {
+      await signOut(auth);
+      logger.info('User logged out');
+    } catch (err) {
+      logger.error('Logout failed', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, firebaseUser, loading, isAdmin, login, register, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,6 +1,6 @@
-
 'use client';
 
+import { use } from 'react';
 import Image from 'next/image';
 import type { Representative } from '@/types';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -8,6 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IntegrityReportGenerator } from '@/components/representatives/IntegrityReportGenerator';
 import { PerformanceMetricsDisplay } from '@/components/representatives/PerformanceMetricsDisplay';
+import { PerformanceChart } from '@/components/representatives/PerformanceChart';
+import { CompareRepresentativesModal } from '@/components/representatives/CompareRepresentatives';
+import { JudiciaryChecks } from '@/components/representatives/JudiciaryChecks';
 import { HighlightsDisplay } from '@/components/representatives/HighlightsDisplay';
 import { SocialHighlightsGenerator } from '@/components/representatives/SocialHighlightsGenerator';
 import { AddPerformanceMetric } from '@/components/representatives/AddPerformanceMetric';
@@ -17,19 +20,20 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { doc, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, limit } from 'firebase/firestore';
 
 interface RepresentativeProfilePageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default function RepresentativeProfilePage({ params }: RepresentativeProfilePageProps) {
+  const { slug } = use(params);
   const firestore = useFirestore();
 
   const representativeQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'representatives'), where('slug', '==', params.slug), limit(1));
-  }, [firestore, params.slug]);
+    return query(collection(firestore, 'representatives'), where('slug', '==', slug), limit(1));
+  }, [firestore, slug]);
 
   const { data: representativeData, isLoading: isLoadingRep } = useCollection<Representative>(representativeQuery);
   const representative = representativeData?.[0];
@@ -45,7 +49,6 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
     return collection(firestore, 'representatives', representative.id, 'performance_metrics');
   }, [firestore, representative?.id]);
   const { data: performanceMetrics, isLoading: isLoadingMetrics } = useCollection(performanceMetricsQuery);
-
 
   if (isLoadingRep) {
     return (
@@ -83,7 +86,6 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
           </Link>
         </Button>
 
-        {/* Header Section */}
         <Card className="overflow-hidden shadow-xl">
           <div className="md:flex">
             <div className="md:w-1/3 relative">
@@ -109,7 +111,7 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
                 {representative.contactInfo.officeAddress && <InfoItem icon={Users} label="Office" value={representative.contactInfo.officeAddress} />}
                 {representative.votesGarnered && <InfoItem icon={Users} label="Votes Garnered" value={representative.votesGarnered.toLocaleString()} />}
               </div>
-              <div className="mt-4 flex space-x-3">
+              <div className="mt-4 flex flex-wrap gap-3">
                 {representative.contactInfo.twitter && (
                   <Button variant="outline" size="sm" asChild>
                     <a href={`https://twitter.com/${representative.contactInfo.twitter.replace('@','')}`} target="_blank" rel="noopener noreferrer">
@@ -124,12 +126,19 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
                     </a>
                   </Button>
                 )}
+                <CompareRepresentativesModal 
+                  defaultRep1Id={representative.id}
+                  trigger={
+                    <Button variant="default" size="sm" className="bg-primary">
+                      <span className="mr-2">⚖️</span> Compare
+                    </Button>
+                  }
+                />
               </div>
             </div>
           </div>
         </Card>
 
-        {/* Tabs Section */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
             <TabsTrigger value="overview"><Info className="mr-2 h-4 w-4" />Overview</TabsTrigger>
@@ -152,18 +161,19 @@ export default function RepresentativeProfilePage({ params }: RepresentativeProf
                 ) : (
                   <p className="text-muted-foreground">No participation summary available.</p>
                 )}
-                {/* More overview details can be added here */}
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="performance" className="mt-6">
             <PerformanceMetricsDisplay metrics={performanceMetrics ?? []} isLoading={isLoadingMetrics} />
+            <PerformanceChart metrics={performanceMetrics ?? []} representativeName={representative.name} />
             <AddPerformanceMetric representativeId={representative.id} />
           </TabsContent>
 
-          <TabsContent value="integrity" className="mt-6">
+          <TabsContent value="integrity" className="mt-6 space-y-6">
             <IntegrityReportGenerator representative={representative} />
+            <JudiciaryChecks representative={representative} />
           </TabsContent>
 
           <TabsContent value="highlights" className="mt-6">

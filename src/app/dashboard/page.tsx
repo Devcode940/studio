@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect } from "react";
@@ -34,7 +33,7 @@ export default function DashboardPage() {
     <MainLayout>
       <div className="space-y-8">
         <header className="rounded-lg bg-gradient-to-r from-primary to-primary/80 p-8 text-primary-foreground shadow-lg">
-          <h1 className="font-headline text-4xl font-bold">Welcome to Your Dashboard, {user.name || user.email}!</h1>
+          <h1 className="font-headline text-4xl font-bold">Welcome to Your Dashboard, {user.displayName || user.email}!</h1>
           <p className="mt-2 text-lg opacity-90">
             Here you can manage your preferences and view personalized insights.
           </p>
@@ -58,7 +57,6 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">You are not following any representatives yet.</p>
-              {/* Placeholder for followed representatives list */}
             </CardContent>
           </Card>
           <Card className="shadow-md">
@@ -67,7 +65,6 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">No recent activity.</p>
-              {/* Placeholder for recent activity feed */}
             </CardContent>
           </Card>
         </div>

@@ -63,9 +63,11 @@ export default function HomePage() {
          <div className="relative mb-12 h-64 md:h-96 w-full overflow-hidden rounded-lg shadow-xl">
             <Image 
               src="https://placehold.co/1200x400.png" 
-              alt="Kenya Parliament" 
-              layout="fill" 
-              objectFit="cover" 
+              alt="Kenya Parliament Building - Transparency, Accountability, Progress" 
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
+              sizes="(max-width: 768px) 100vw, 1200px"
               data-ai-hint="Kenya parliament building"
             />
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">

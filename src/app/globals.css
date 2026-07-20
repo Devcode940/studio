@@ -3,11 +3,19 @@
 @tailwind utilities;
 
 body {
-  font-family: 'PT Sans', sans-serif; /* Default body font */
+  font-family: var(--font-pt-sans), 'PT Sans', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', sans-serif; /* Default headline font */
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-pt-sans), 'PT Sans', sans-serif;
+}
+
+.font-headline {
+  font-family: var(--font-poppins), 'Poppins', sans-serif;
 }
 
 @layer base {
